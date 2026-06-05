@@ -1,23 +1,30 @@
 cmake_minimum_required(VERSION 3.19)
 project(CyclingDataAnalyzer LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network)
 
 qt_standard_project_setup()
 
 qt_add_executable(CyclingDataAnalyzer
-    WIN32 MACOSX_BUNDLE
-    main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
+    #WIN32 MACOSX_BUNDLE
+    src/main.cpp
+    src/ui/mainwindow.cpp
+    src/ui/mainwindow.h
+    src/ui/mainwindow.ui
+    
+    src/network/OnenetClient.h
+    src/network/OnenetClient.cpp
+    src/network/OnenetTypes.h
 )
 
 target_link_libraries(CyclingDataAnalyzer
     PRIVATE
         Qt::Core
         Qt::Widgets
+        Qt::Network
 )
+
+target_include_directories(CyclingDataAnalyzer PRIVATE src)
 
 install(TARGETS CyclingDataAnalyzer
     BUNDLE  DESTINATION .
