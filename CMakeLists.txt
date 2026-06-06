@@ -17,6 +17,9 @@ qt_add_executable(CyclingDataAnalyzer
     src/network/OnenetTypes.h
     src/database/AppDatabase.h
     src/database/AppDatabase.cpp
+    src/domain/Device.h
+    src/database/DeviceRepository.h
+    src/database/DeviceRepository.cpp
 )
 
 target_link_libraries(CyclingDataAnalyzer
