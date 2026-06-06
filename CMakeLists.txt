@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(CyclingDataAnalyzer LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network Sql)
 
 qt_standard_project_setup()
 
@@ -15,6 +15,8 @@ qt_add_executable(CyclingDataAnalyzer
     src/network/OnenetClient.h
     src/network/OnenetClient.cpp
     src/network/OnenetTypes.h
+    src/database/AppDatabase.h
+    src/database/AppDatabase.cpp
 )
 
 target_link_libraries(CyclingDataAnalyzer
@@ -22,6 +24,7 @@ target_link_libraries(CyclingDataAnalyzer
         Qt::Core
         Qt::Widgets
         Qt::Network
+        Qt6::Sql
 )
 
 target_include_directories(CyclingDataAnalyzer PRIVATE src)
