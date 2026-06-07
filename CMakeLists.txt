@@ -27,6 +27,9 @@ qt_add_executable(CyclingDataAnalyzer
     src/domain/SensorSample.h
     src/database/SensorDataRepository.h
     src/database/SensorDataRepository.cpp
+    src/domain/RideEvent.h
+    src/database/EventRepository.cpp
+    src/database/EventRepository.h
 )
 
 target_link_libraries(CyclingDataAnalyzer
