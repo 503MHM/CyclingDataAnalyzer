@@ -102,9 +102,10 @@ QVector<SensorSample> SensorDataRepository::findByRideId(int rideId)
         return QVector<SensorSample>();
     }
 
-    SensorSample sample;
+    
     QVector<SensorSample> senData;
     while(query.next()){
+        SensorSample sample;
         sample.id=query.value("id").toInt();
         sample.rideId=query.value("ride_id").toInt();
         sample.deviceId=query.value("device_id").toInt();

@@ -30,6 +30,10 @@ qt_add_executable(CyclingDataAnalyzer
     src/domain/RideEvent.h
     src/database/EventRepository.cpp
     src/database/EventRepository.h
+    src/service/EventMapper.cpp
+    src/service/EventMapper.h
+    src/service/SensorSampleBuilder.h
+    src/service/SensorSampleBuilder.cpp
 )
 
 target_link_libraries(CyclingDataAnalyzer
