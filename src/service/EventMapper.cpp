@@ -26,23 +26,23 @@ RideEvent EventMapper::toRideEvent(const OnenetEventItem &item,int deviceId,int 
 
     QJsonDocument doc = QJsonDocument::fromJson(item.valueJson.toUtf8());
     if (doc.isObject()) {
-    QJsonObject obj = doc.object();
+        QJsonObject obj = doc.object();
 
-    if (obj.contains("longitude")) {
-    event.longitude = obj.value("longitude").toDouble();
-    }
+        if (obj.contains("longitude")) {
+            event.longitude = obj.value("longitude").toDouble();
+        }
 
-    if (obj.contains("latitude")) {
-    event.latitude = obj.value("latitude").toDouble();
-    }
+        if (obj.contains("latitude")) {
+            event.latitude = obj.value("latitude").toDouble();
+        }
 
-    if (obj.contains("heart_rate")) {
-    event.heartRate = obj.value("heart_rate").toInt();
-    }
+        if (obj.contains("heart_rate")) {
+            event.heartRate = obj.value("heart_rate").toInt();
+        }
 
-    if (obj.contains("trip_mileage")) {
-    event.tripMileage = obj.value("trip_mileage").toDouble();
-    }
+        if (obj.contains("trip_mileage")) {
+            event.tripMileage = obj.value("trip_mileage").toDouble();
+        }
     }
 
     return event;

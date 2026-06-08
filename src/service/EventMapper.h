@@ -1,6 +1,6 @@
 #pragma once
 
-#include "database/EventRepository.h"
+#include "domain/RideEvent.h"
 #include "network/OnenetTypes.h"
 
 
