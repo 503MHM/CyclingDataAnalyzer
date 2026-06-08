@@ -35,6 +35,49 @@ int RideRepository::insertRide(const Ride &ride)
     return query.lastInsertId().toInt();
 }
 
+bool RideRepository::updateStats(int rideId, const AnalysisService::RideStats &stats)
+{
+    m_lastError.clear();
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+         UPDATE rides
+        SET
+            avg_heart_rate = :avg_heart_rate,
+            max_heart_rate = :max_heart_rate,
+            avg_speed = :avg_speed,
+            max_speed = :max_speed,
+            avg_spo2 = :avg_spo2,
+            min_spo2 = :min_spo2,
+            avg_temperature = :avg_temperature,
+            avg_humidity = :avg_humidity,
+            event_count = :event_count
+        WHERE id = :id
+        )"
+    );
+    query.bindValue(":avg_heart_rate",stats.avgHeartRate);
+    query.bindValue(":max_heart_rate",stats.maxHeartRate);
+    query.bindValue(":avg_speed",stats.avgSpeed);
+    query.bindValue(":max_speed",stats.maxSpeed);
+    query.bindValue(":avg_spo2",stats.avgSpo2);
+    query.bindValue(":min_spo2",stats.minSpo2);
+    query.bindValue(":avg_temperature",stats.avgTemperature);
+    query.bindValue(":avg_humidity",stats.avgHumidity);
+    query.bindValue(":event_count",stats.eventCount);
+    query.bindValue(":id",rideId);
+
+    if(!query.exec()){
+        m_lastError=query.lastError().text();
+        return false;
+    }
+
+    if (query.numRowsAffected() == 0) {
+        m_lastError = "ride not found";
+        return false;
+    }
+
+    return true;
+}
+
 std::optional<Ride> RideRepository::findById(int id)
 {
 

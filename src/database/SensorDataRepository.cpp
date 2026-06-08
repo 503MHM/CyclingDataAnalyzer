@@ -75,11 +75,23 @@ bool SensorDataRepository::insertSample(const SensorSample &sample)
 
 bool SensorDataRepository::insertSamples(const QVector<SensorSample> &sample)
 {
+    // 开启事务
+    if (!m_database.transaction()) {
+        qDebug() << "开启事务失败";
+        return false;
+    }
 
-    for(auto sam : sample){
+    for(const auto &sam : sample){
         if(!insertSample(sam)){
+            m_database.rollback();
             return false;
         }
+    }
+
+    // 全部成功，提交事务
+    if (!m_database.commit()) {
+        qDebug() << "提交事务失败";
+        return false;
     }
 
     return true;

@@ -34,6 +34,8 @@ qt_add_executable(CyclingDataAnalyzer
     src/service/EventMapper.h
     src/service/SensorSampleBuilder.h
     src/service/SensorSampleBuilder.cpp
+    src/service/AnalysisService.h
+    src/service/AnalysisService.cpp
 )
 
 target_link_libraries(CyclingDataAnalyzer
