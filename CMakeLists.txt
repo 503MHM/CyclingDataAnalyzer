@@ -38,6 +38,10 @@ qt_add_executable(CyclingDataAnalyzer
     src/service/AnalysisService.cpp
     src/service/SyncService.h
     src/service/SyncService.cpp
+    src/service/RideBuilder.h
+    src/service/RideBuilder.cpp
+    src/service/SyncWorker.cpp
+    src/service/SyncWorker.h
 )
 
 target_link_libraries(CyclingDataAnalyzer
