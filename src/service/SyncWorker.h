@@ -27,7 +27,7 @@ public:
     void start(SyncRequest request);
 
 signals:
-    void progressChanged(const QString &message,int current,int total);
+    void progressChanged(const QString &typeMessage,int current,int total);
 
     void finished(int rideId);
 

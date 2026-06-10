@@ -117,6 +117,48 @@ std::optional<Ride> RideRepository::findById(int id)
     return ride;
 }
 
+QVector<Ride> RideRepository::findAll()
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+            select *
+            from rides
+            order by start_time desc
+        )");
+
+    if (!query.exec()) {
+        m_lastError = query.lastError().text();
+        return {};
+    }
+
+    QVector<Ride> rides;
+    while (query.next()) {
+        Ride ride;
+        ride.id                  = query.value("id").toInt();
+        ride.deviceId            = query.value("device_id").toInt();
+        ride.title               = query.value("title").toString();
+        ride.startTime           = query.value("start_time").toString();
+        ride.endTime             = query.value("end_time").toString();
+        ride.durationSeconds     = query.value("duration_seconds").toInt();
+        ride.tripMileage         = query.value("trip_mileage").toDouble();
+        ride.avgHeartRate        = query.value("avg_heart_rate").toDouble();
+        ride.maxHeartRate        = query.value("max_heart_rate").toInt();
+        ride.avgSpeed            = query.value("avg_speed").toDouble();
+        ride.maxSpeed            = query.value("max_speed").toDouble();
+        ride.avgSpo2             = query.value("avg_spo2").toDouble();
+        ride.minSpo2             = query.value("min_spo2").toInt();
+        ride.avgTemperature      = query.value("avg_temperature").toDouble();
+        ride.avgHumidity         = query.value("avg_humidity").toDouble();
+        ride.eventCount          = query.value("event_count").toInt();
+        ride.createdAt           = query.value("created_at").toString();
+        rides.append(ride);
+    }
+
+    return rides;
+}
+
 QString RideRepository::lastError() const
 {
     return m_lastError;

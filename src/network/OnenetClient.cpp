@@ -208,7 +208,7 @@ QJsonObject OnenetClient::arrayToJsonObject(QByteArray &array)
     QJsonParseError err;
     QJsonDocument doc=QJsonDocument::fromJson(array,&err);
     if(!doc.isObject()){
-        emit requestFailed("arrayToJsonObject",-2,0,"arrayToJsonObject failed");
+        emit requestFailed("arrayToJsonObject",0,-2,"arrayToJsonObject failed");
         return QJsonObject();
     }
 

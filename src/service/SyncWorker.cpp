@@ -42,7 +42,8 @@ namespace{
 SyncWorker::SyncWorker(const QSqlDatabase &database, QObject *parent)
     :QObject(parent),
     m_database(database)
-{
+{      
+    
     m_expectedPropertyCount=propertyIdentifiers.size();
     m_expectedEventCount=eventIdentifiers.size();
 }
@@ -67,12 +68,15 @@ void SyncWorker::start(SyncRequest request)
         return;
     }
 
-    m_client=new OnenetClient(this);
+    if (m_client) {
+        m_client->deleteLater();
+        m_client = nullptr;
+    }
+
+    m_client = new OnenetClient(this);
     m_client->setConfig(m_request.config);
 
-    //设置开始时间和结束时间,默认最近7天
-    // qint64 startTime=QDateTime(QDate::currentDate().addDays(-7),QTime(0,0,0)).toMSecsSinceEpoch();
-    // qint64 endTime=QDateTime(QDate::currentDate(),QTime(23,59,59)).toMSecsSinceEpoch();
+
     qint64 startTime=m_request.start_time;
     qint64 endTime=m_request.end_time;
 
@@ -128,6 +132,21 @@ void SyncWorker::tryFinish()
     }
     
     m_finished=true;
+
+    bool hasPropertyData = false;
+    for (auto it = m_propertyPoints.begin(); it != m_propertyPoints.end(); ++it) {
+        if (!it.value().isEmpty()) {
+            hasPropertyData = true;
+            break;
+        }
+    }
+
+    bool hasEventData = !m_eventItems.isEmpty();
+
+    if (!hasPropertyData && !hasEventData) {
+        emit failed("[SyncWorker] 查询时间范围内没有 OneNET 数据，未创建骑行记录");
+        return;
+    }
 
     //1.构建骑行记录
     Ride ride=RideBuilder::buildRideFromEventsOrRange(m_deviceId,m_eventItems,m_request.start_time,m_request.end_time);

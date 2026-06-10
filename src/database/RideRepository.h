@@ -19,6 +19,8 @@ public:
 
     std::optional<Ride> findById(int id);
 
+    QVector<Ride> findAll();
+
     QString lastError() const;
 
 private:

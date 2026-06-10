@@ -140,6 +140,33 @@ QVector<SensorSample> SensorDataRepository::findByRideId(int rideId)
     return senData;
 }
 
+double SensorDataRepository::findLatestTotalMileageByRideId(int rideId)
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+            select *
+            from sensor_data
+            where ride_id=:ride_id
+                and total_mileage is not null
+            order by timestamp_ms desc
+        )"
+    );
+    query.bindValue(":ride_id",rideId);
+
+    if(!query.exec()){
+        m_lastError=query.lastError().text();
+        return 0.0;
+    }
+
+    if (!query.next()) {
+        return 0.0;
+    }
+
+    return query.value("total_mileage").toDouble();
+}
+
 QString SensorDataRepository::lastError() const
 {
     return m_lastError;

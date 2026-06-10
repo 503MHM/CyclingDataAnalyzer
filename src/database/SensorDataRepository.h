@@ -20,5 +20,7 @@ public:
 
     QVector<SensorSample> findByRideId(int rideId);
 
+    double findLatestTotalMileageByRideId(int rideId);
+
     QString lastError()const;
 };
