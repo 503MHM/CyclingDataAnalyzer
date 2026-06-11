@@ -33,6 +33,8 @@
 #include <functional>
 #include <memory>
 #include <QLabel>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -83,6 +85,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_syncWorker,&SyncWorker::failed,this,[=](const QString &message){
         syncStatusbar_label->setText("同步失败: "+message);
     });
+    
+    
+    //设置Event TableWidget的行为
+    ui->eventsTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);          //禁止编辑
+    ui->eventsTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);         //选中整行
+    ui->eventsTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);        //一次只能选中一行
+    auto *header = ui->eventsTableWidget->horizontalHeader();                           //获取水平表头对象
+    header->setSectionResizeMode(QHeaderView::ResizeToContents);                        //所有列的初始宽度根据内容自动调整
+    header->setSectionResizeMode(4, QHeaderView::Stretch);                              //第 5 列设置为拉伸模式
+    header->setMinimumSectionSize(70);                                                  //所有列的最小宽度为 70 像素
+
+    //ui->eventsTableWidget->verticalHeader()->setVisible(false);                       //隐藏左侧的行号列
+
 }
 
 void MainWindow::setDateTimeEditRange()
@@ -143,6 +158,9 @@ void MainWindow::setDateTimeEditRange()
             });
 
     updateEndTimeRange(ui->startDateTimeEdit->dateTime());
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -213,6 +231,35 @@ void MainWindow::showRideDashboard(const Ride &ride)
 
     //事件groupbox
     ui->eventCountValueLabel->setText(QString::number(ride.eventCount));
+
+
+    //设置Events页面
+    showRideEvents(ride.id);
+}
+
+void MainWindow::showRideEvents(int rideId)
+{
+    EventRepository eventRepo(m_database->database());
+    QVector<RideEvent> events=eventRepo.findByRideId(rideId);
+
+    ui->eventsTableWidget->setRowCount(events.size());
+    
+    for(int row=0;row<events.size();row++){
+        RideEvent event=events[row];
+
+        ui->eventsTableWidget->setItem(row,0,new QTableWidgetItem(event.timeText));
+        ui->eventsTableWidget->setItem(row,1,new QTableWidgetItem(event.name));
+
+        QString eventType;
+        if(event.eventType==1) eventType="信息";
+        else if(event.eventType==2) eventType="告警";
+        else if(event.eventType==3) eventType="故障";
+        ui->eventsTableWidget->setItem(row,2,new QTableWidgetItem(eventType));
+        ui->eventsTableWidget->setItem(row,3,new QTableWidgetItem(event.heartRate ? QString::number(event.heartRate):"NULL"));
+
+        QString location=QString("%1,%2").arg(event.latitude,0,'f',6).arg(event.longitude,0,'f',6);
+        ui->eventsTableWidget->setItem(row,4,new QTableWidgetItem(location));
+    }
 
 }
 

@@ -32,6 +32,8 @@ public:
 
     void showRideDashboard(const Ride &ride);
 
+    void showRideEvents(int rideId);
+
     void test();
 
 private slots:

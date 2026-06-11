@@ -151,6 +151,7 @@ double SensorDataRepository::findLatestTotalMileageByRideId(int rideId)
             where ride_id=:ride_id
                 and total_mileage is not null
             order by timestamp_ms desc
+            limit 1
         )"
     );
     query.bindValue(":ride_id",rideId);
