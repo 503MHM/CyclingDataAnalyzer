@@ -61,6 +61,10 @@ MainWindow::MainWindow(QWidget *parent)
         if (row < 0 || row >= m_rides.size()) return;
 
         showRideDashboard(m_rides[row]);
+        //设置Events页面
+        showRideEvents(m_rides[row].id);
+        //设置raw data页面
+        showRideRawData(m_rides[row].id);
     });
     
     
@@ -95,9 +99,15 @@ MainWindow::MainWindow(QWidget *parent)
     header->setSectionResizeMode(QHeaderView::ResizeToContents);                        //所有列的初始宽度根据内容自动调整
     header->setSectionResizeMode(4, QHeaderView::Stretch);                              //第 5 列设置为拉伸模式
     header->setMinimumSectionSize(70);                                                  //所有列的最小宽度为 70 像素
-
     //ui->eventsTableWidget->verticalHeader()->setVisible(false);                       //隐藏左侧的行号列
 
+
+    //设置Raw tableView属性行为
+    m_rawDataModel=new QSqlQueryModel(this);
+    ui->rawDataTableView->setModel(m_rawDataModel);
+    ui->rawDataTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->rawDataTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->rawDataTableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void MainWindow::setDateTimeEditRange()
@@ -234,7 +244,7 @@ void MainWindow::showRideDashboard(const Ride &ride)
 
 
     //设置Events页面
-    showRideEvents(ride.id);
+    //showRideEvents(ride.id);
 }
 
 void MainWindow::showRideEvents(int rideId)
@@ -261,6 +271,36 @@ void MainWindow::showRideEvents(int rideId)
         ui->eventsTableWidget->setItem(row,4,new QTableWidgetItem(location));
     }
 
+}
+
+void MainWindow::showRideRawData(int rideId)
+{
+    QSqlQuery query(m_database->database());
+    query.prepare(R"(
+        select
+            time_text AS 时间,
+            heart_rate AS 心率,
+            spo2 AS 血氧,
+            speed AS 速度,
+            temperature AS 温度,
+            humidity AS 湿度,
+            latitude AS 纬度,
+            longitude AS 经度,
+            trip_mileage AS 单次里程,
+            total_mileage AS 总里程
+        from sensor_data
+        where ride_id=:ride_id
+        order by timestamp_ms asc
+        )"
+    );
+    query.bindValue(":ride_id",rideId);
+
+    if(!query.exec()){
+        ui->statusbar->showMessage("原始数据查询失败: " + query.lastError().text(),5000);
+        return;
+    }
+
+    m_rawDataModel->setQuery(std::move(query));
 }
 
 void MainWindow::on_syncButton_clicked()

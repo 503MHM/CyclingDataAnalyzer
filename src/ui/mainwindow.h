@@ -6,7 +6,9 @@
 #include "database/AppDatabase.h"
 #include "service/SyncWorker.h"
 #include "domain/Ride.h"
+
 #include <vector>
+#include <QSqlQueryModel>
 
 
 QT_BEGIN_NAMESPACE
@@ -34,6 +36,8 @@ public:
 
     void showRideEvents(int rideId);
 
+    void showRideRawData(int rideId);
+
     void test();
 
 private slots:
@@ -45,5 +49,7 @@ private:
     AppDatabase *m_database=nullptr;
     SyncWorker *m_syncWorker=nullptr;
     QVector<Ride> m_rides;
+
+    QSqlQueryModel *m_rawDataModel=nullptr;
 };
 #endif // MAINWINDOW_H
