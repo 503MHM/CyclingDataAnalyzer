@@ -6,9 +6,12 @@
 #include "database/AppDatabase.h"
 #include "service/SyncWorker.h"
 #include "domain/Ride.h"
+#include "ui/InteractiveChartView.h"
 
 #include <vector>
 #include <QSqlQueryModel>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
 
 
 QT_BEGIN_NAMESPACE
@@ -38,6 +41,8 @@ public:
 
     void showRideRawData(int rideId);
 
+    void showRideCharts(int rideId);
+
     void test();
 
 private slots:
@@ -51,5 +56,8 @@ private:
     QVector<Ride> m_rides;
 
     QSqlQueryModel *m_rawDataModel=nullptr;
+    
+    InteractiveChartView *m_heartChartView=nullptr;
+    InteractiveChartView *m_speedChartView=nullptr;
 };
 #endif // MAINWINDOW_H

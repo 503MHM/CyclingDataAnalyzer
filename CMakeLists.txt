@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(CyclingDataAnalyzer LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network Sql)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network Sql Charts)
 
 qt_standard_project_setup()
 
@@ -42,6 +42,8 @@ qt_add_executable(CyclingDataAnalyzer
     src/service/RideBuilder.cpp
     src/service/SyncWorker.cpp
     src/service/SyncWorker.h
+    src/ui/InteractiveChartView.cpp
+    src/ui/InteractiveChartView.h
 )
 
 target_link_libraries(CyclingDataAnalyzer
@@ -50,6 +52,7 @@ target_link_libraries(CyclingDataAnalyzer
         Qt::Widgets
         Qt::Network
         Qt6::Sql
+        Qt::Charts
 )
 
 target_include_directories(CyclingDataAnalyzer PRIVATE src)

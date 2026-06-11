@@ -65,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent)
         showRideEvents(m_rides[row].id);
         //设置raw data页面
         showRideRawData(m_rides[row].id);
+        //设置曲线页面
+        showRideCharts(m_rides[row].id);
     });
     
     
@@ -108,6 +110,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->rawDataTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->rawDataTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->rawDataTableView->horizontalHeader()->setStretchLastSection(true);
+    
+    //初始化图表
+    m_heartChartView=new InteractiveChartView(this);
+    m_speedChartView=new InteractiveChartView(this);
+
+    auto *layout=new QVBoxLayout(ui->chartsContainerWidget);
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(8);
+    layout->addWidget(m_heartChartView);
+    layout->addWidget(m_speedChartView);
 }
 
 void MainWindow::setDateTimeEditRange()
@@ -168,6 +180,8 @@ void MainWindow::setDateTimeEditRange()
             });
 
     updateEndTimeRange(ui->startDateTimeEdit->dateTime());
+
+
 
 
 
@@ -300,7 +314,39 @@ void MainWindow::showRideRawData(int rideId)
         return;
     }
 
-    m_rawDataModel->setQuery(std::move(query));
+    m_rawDataModel->setQuery(query);
+}
+
+void MainWindow::showRideCharts(int rideId)
+{
+    SensorDataRepository senRepo(m_database->database());
+    QVector<SensorSample> samples=senRepo.findByRideId(rideId);
+
+    QLineSeries *heartSeries=new QLineSeries();
+    heartSeries->setName("心率");
+
+    QLineSeries *speedSeries=new QLineSeries();
+    speedSeries->setName("速度");
+
+
+    for(int i=0;i<samples.size();i++){
+        heartSeries->append(i,samples[i].heartRate);
+        speedSeries->append(i,samples[i].speed);
+    }
+
+    auto *heartChart=new QChart();
+    heartChart->addSeries(heartSeries);
+    heartChart->createDefaultAxes();
+    
+    auto *speedChart=new QChart();
+    speedChart->addSeries(speedSeries);
+    speedChart->createDefaultAxes();
+
+    heartChart->setTitle("心率曲线");
+    speedChart->setTitle("速度曲线");
+
+    m_heartChartView->setChart(heartChart);
+    m_speedChartView->setChart(speedChart);
 }
 
 void MainWindow::on_syncButton_clicked()
