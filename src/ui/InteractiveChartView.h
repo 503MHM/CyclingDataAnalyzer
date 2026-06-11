@@ -1,7 +1,9 @@
 #pragma once
 
-#include <QChartView>
-
+#include <QtCharts/QChartView>
+#include <QPoint>
+#include <QLineSeries>
+#include <QLabel>
 
 class InteractiveChartView :public QChartView
 {
@@ -18,5 +20,13 @@ protected:
 private:
     bool m_isPanning=false;
     QPoint m_lastMousePos;
+
+    QLineSeries *m_crosshairSeries=nullptr;         //表示当前这张图要参考哪条线来找最近点
+    QLabel *m_tooltipLabel=nullptr;                 //悬浮提示框
+    bool m_crosshairVisible=false;                  //表示虚线和圆点当前要不要显示
+    int m_crosshairX=0;                             //竖向虚线的 x 坐标
+
+
+
 
 };

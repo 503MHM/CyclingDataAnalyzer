@@ -36,6 +36,12 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 
+#include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QValueAxis>
+#include <QToolTip>
+#include <QCursor>
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -120,6 +126,8 @@ MainWindow::MainWindow(QWidget *parent)
     layout->setSpacing(8);
     layout->addWidget(m_heartChartView);
     layout->addWidget(m_speedChartView);
+
+    //
 }
 
 void MainWindow::setDateTimeEditRange()
@@ -328,22 +336,87 @@ void MainWindow::showRideCharts(int rideId)
     QLineSeries *speedSeries=new QLineSeries();
     speedSeries->setName("速度");
 
+    double maxHeart=0;
+    double maxSpeed=0;
+
 
     for(int i=0;i<samples.size();i++){
-        heartSeries->append(i,samples[i].heartRate);
-        speedSeries->append(i,samples[i].speed);
+        heartSeries->append(samples[i].timestampMs,samples[i].heartRate);
+        speedSeries->append(samples[i].timestampMs,samples[i].speed);
+    
+        if(samples[i].heartRate>maxHeart) maxHeart=samples[i].heartRate;
+        if(samples[i].speed>maxSpeed) maxSpeed=samples[i].speed;
     }
 
+    //添加悬停显示信息
+    connect(heartSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
+        if(!state){
+            QToolTip::hideText();
+            return;
+        }
+        QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
+
+        QToolTip::showText(QCursor::pos(),QString("时间: %1\n心率: %2 bpm").arg(time).arg(point.y(), 0, 'f', 0));
+    });
+
+    connect(speedSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
+        if(!state){
+            QToolTip::hideText();
+            return;
+        }
+        QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
+
+        QToolTip::showText(QCursor::pos(),QString("时间: %1\n速度: %2 km/h").arg(time).arg(point.y(), 0, 'f', 0));
+    });
+
+
+
+
+    //1.心率表
     auto *heartChart=new QChart();
     heartChart->addSeries(heartSeries);
-    heartChart->createDefaultAxes();
+    heartChart->setTitle("心率曲线");
     
+    //创建X轴对象
+    QDateTimeAxis *heartAxisX=new QDateTimeAxis();
+    heartAxisX->setFormat("HH:mm:ss");              //设置轴格式
+    heartAxisX->setTitleText("时间");               //设置轴名称标题
+
+    //创建Y轴对象
+    QValueAxis *heartAxisY=new QValueAxis();
+    heartAxisY->setTitleText("心率(bpm)");
+    heartAxisY->setRange(0,maxHeart+10);
+
+    //将轴对象添加到图表中
+    heartChart->addAxis(heartAxisX,Qt::AlignBottom);
+    heartChart->addAxis(heartAxisY,Qt::AlignLeft);
+    //
+    heartSeries->attachAxis(heartAxisX);
+    heartSeries->attachAxis(heartAxisY);
+
+    //2.速度表
     auto *speedChart=new QChart();
     speedChart->addSeries(speedSeries);
-    speedChart->createDefaultAxes();
-
-    heartChart->setTitle("心率曲线");
     speedChart->setTitle("速度曲线");
+
+    //创建X轴对象
+    QDateTimeAxis *speedAxisX=new QDateTimeAxis();
+    speedAxisX->setFormat("HH:mm:ss");              //设置轴格式
+    speedAxisX->setTitleText("时间");               //设置轴名称标题
+
+    //创建Y轴对象
+    QValueAxis *speedAxisY=new QValueAxis();
+    speedAxisY->setTitleText("速度(km/h)");
+    speedAxisY->setRange(0,maxSpeed>0 ? maxSpeed+2 : 10);
+
+    //将轴对象添加到图表中
+    speedChart->addAxis(speedAxisX,Qt::AlignBottom);
+    speedChart->addAxis(speedAxisY,Qt::AlignLeft);
+
+    //
+    speedSeries->attachAxis(speedAxisX);
+    speedSeries->attachAxis(speedAxisY);
+
 
     m_heartChartView->setChart(heartChart);
     m_speedChartView->setChart(speedChart);
