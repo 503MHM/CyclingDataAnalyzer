@@ -348,26 +348,26 @@ void MainWindow::showRideCharts(int rideId)
         if(samples[i].speed>maxSpeed) maxSpeed=samples[i].speed;
     }
 
-    //添加悬停显示信息
-    connect(heartSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
-        if(!state){
-            QToolTip::hideText();
-            return;
-        }
-        QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
+    // //添加悬停显示信息
+    // connect(heartSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
+    //     if(!state){
+    //         QToolTip::hideText();
+    //         return;
+    //     }
+    //     QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
 
-        QToolTip::showText(QCursor::pos(),QString("时间: %1\n心率: %2 bpm").arg(time).arg(point.y(), 0, 'f', 0));
-    });
+    //     QToolTip::showText(QCursor::pos(),QString("时间: %1\n心率: %2 bpm").arg(time).arg(point.y(), 0, 'f', 0));
+    // });
 
-    connect(speedSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
-        if(!state){
-            QToolTip::hideText();
-            return;
-        }
-        QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
+    // connect(speedSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
+    //     if(!state){
+    //         QToolTip::hideText();
+    //         return;
+    //     }
+    //     QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
 
-        QToolTip::showText(QCursor::pos(),QString("时间: %1\n速度: %2 km/h").arg(time).arg(point.y(), 0, 'f', 0));
-    });
+    //     QToolTip::showText(QCursor::pos(),QString("时间: %1\n速度: %2 km/h").arg(time).arg(point.y(), 0, 'f', 0));
+    // });
 
 
 
@@ -419,7 +419,9 @@ void MainWindow::showRideCharts(int rideId)
 
 
     m_heartChartView->setChart(heartChart);
+    m_heartChartView->setCrosshairSeries(heartSeries,"心率","bpm",0);
     m_speedChartView->setChart(speedChart);
+    m_speedChartView->setCrosshairSeries(speedSeries,"速度","km/h",2);
 }
 
 void MainWindow::on_syncButton_clicked()
