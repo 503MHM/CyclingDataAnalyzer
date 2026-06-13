@@ -37,6 +37,20 @@ signals:
 private:
     void tryFinish();
 
+    qint64 isoDateStringToMs(const QString &timeText);
+
+    QHash<QString,QVector<OnenetPropertyPoint>> filterPropertyPointsByTime(
+        const QHash<QString, QVector<OnenetPropertyPoint>> &allPoints,
+        qint64 startMs,
+        qint64 endMs
+    );
+
+    QVector<OnenetEventItem> filterEventByTime(
+        const QVector<OnenetEventItem> &events,
+        qint64 startMs,
+        qint64 endMs
+    );
+
 
 private:
     QSqlDatabase m_database;

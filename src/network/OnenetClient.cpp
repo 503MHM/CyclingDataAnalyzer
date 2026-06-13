@@ -115,6 +115,7 @@ void OnenetClient::handlePropertyHistoryReply(QNetworkReply *reply, const QStrin
     int code=obj.value("code").toInt();
     if(code!=0){
         qDebug()<<"[OnenetClient] GET failed! "<<obj.value("msg").toString();
+        emit requestFailed("queryPropertyHistory",httpStatus,code,obj.value("msg").toString());
         return;
     }
 
@@ -165,8 +166,10 @@ void OnenetClient::handleEventLogReply(QNetworkReply *reply, int offset, int lim
     QJsonObject rootObj=arrayToJsonObject(array);
 
     //是否成功请求到数据
-    if(rootObj.value("code").toInt()!=0){
+    int code=rootObj.value("code").toInt();
+    if(code!=0){
         qDebug()<<"[OnenetClient] GET failed! "<<rootObj.value("msg").toString();
+        emit requestFailed("queryEventLog",httpStatus,code,rootObj.value("msg").toString());
         return;
     }
 

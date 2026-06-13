@@ -16,4 +16,7 @@ public:
     );
 
 
+    static QVector<Ride> buildRidesFromEvents(int deviceId,const QVector<OnenetEventItem> &events);
+
+
 };
