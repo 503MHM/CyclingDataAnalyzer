@@ -20,6 +20,8 @@ public:
 
     QVector<RideEvent> findByRideId(int rideId);
 
+    bool deleteByRideId(int rideId);
+
     QString lastError()const;
 
 };

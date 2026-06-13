@@ -152,6 +152,32 @@ void SyncWorker::tryFinish()
     Ride ride=RideBuilder::buildRideFromEventsOrRange(m_deviceId,m_eventItems,m_request.start_time,m_request.end_time);
 
     RideRepository rideRepo(m_database);
+
+    std::optional<Ride> existingRide=rideRepo.findByDeviceAndTime(m_deviceId,ride.startTime,ride.endTime);
+
+    //如果存在旧数据先把旧数据删了
+    if(existingRide){
+        const int oldRideId = existingRide->id;
+
+        SensorDataRepository senRepo(m_database);
+        if (!senRepo.deleteByRideId(oldRideId)) {
+            emit failed("[SyncWorker] 删除旧传感器数据失败: " + senRepo.lastError());
+            return;
+        }
+
+        EventRepository eventRepo(m_database);
+        if (!eventRepo.deleteByRideId(oldRideId)) {
+            emit failed("[SyncWorker] 删除旧事件数据失败: " + eventRepo.lastError());
+            return;
+        }
+
+        if (!rideRepo.deleteById(oldRideId)) {
+            emit failed("[SyncWorker] 删除旧骑行记录失败: " + rideRepo.lastError());
+            return;
+        }
+    }
+    
+
     int rideId=rideRepo.insertRide(ride);
     if(rideId==0){
         emit failed("[SyncWorker]骑行记录入库失败，"+rideRepo.lastError());

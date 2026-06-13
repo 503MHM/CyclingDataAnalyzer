@@ -22,5 +22,9 @@ public:
 
     double findLatestTotalMileageByRideId(int rideId);
 
+    double findLatestTripMileageByRideId(int rideId);
+
+    bool deleteByRideId(int rideId);
+
     QString lastError()const;
 };

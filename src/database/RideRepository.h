@@ -21,6 +21,10 @@ public:
 
     QVector<Ride> findAll();
 
+    std::optional<Ride> findByDeviceAndTime(int deviceId,const QString &startTime,const QString &endTime);
+
+    bool deleteById(int rideId);
+
     QString lastError() const;
 
 private:

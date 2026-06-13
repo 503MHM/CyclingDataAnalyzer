@@ -119,6 +119,26 @@ QVector<RideEvent> EventRepository::findByRideId(int rideId)
     return rideevent_vec;
 }
 
+bool EventRepository::deleteByRideId(int rideId)
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+            delete from events
+            where ride_id=:ride_id
+        )"
+    );
+    query.bindValue(":ride_id",rideId);
+
+    if(!query.exec()){
+        m_lastError=query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
 QString EventRepository::lastError() const
 {
     return m_lastError;

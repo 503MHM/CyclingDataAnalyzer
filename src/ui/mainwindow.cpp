@@ -40,6 +40,7 @@
 #include <QtCharts/QValueAxis>
 #include <QToolTip>
 #include <QCursor>
+#include <QDir>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -88,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_syncWorker,&SyncWorker::finished,this,[=](){
         ui->rideListWidget->clear();
 
+        ui->syncButton->setEnabled(true);
         ui->syncStateLabel->setText("已同步");
         syncStatusbar_label->setText("已同步完成");
         loadRideList();
@@ -95,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //同步失败显示信息
     connect(m_syncWorker,&SyncWorker::failed,this,[=](const QString &message){
+        ui->syncButton->setEnabled(true);
         syncStatusbar_label->setText("同步失败: "+message);
     });
     
@@ -203,9 +206,17 @@ MainWindow::~MainWindow()
 bool MainWindow::initDatabase()
 {
     m_database=new AppDatabase(this);
+
     QLabel *dbStatus_lable=new QLabel(this);
     ui->statusbar->addWidget(dbStatus_lable);
-    if(!m_database->open("cycling_data.db")){
+
+    QString dbDir=QCoreApplication::applicationDirPath()+"/database";
+    if(!QDir().mkpath(dbDir)){
+        dbStatus_lable->setText("创建数据目录失败: " + dbDir);
+        return false;
+    }
+    
+    if(!m_database->open(dbDir+"/cycling_data.db")){
         dbStatus_lable->setText(m_database->lastError());
         return false;
     }
@@ -247,11 +258,9 @@ void MainWindow::showRideDashboard(const Ride &ride)
     ui->minSpo2ValueLabel->setText(QString::number(ride.minSpo2));
 
     //里程groupbox
-    ui->tripMileageValueLabel->setText(QString::number(ride.tripMileage));
     SensorDataRepository senRepo(m_database->database());
-    ui->totalMileageValueLabel->setText(
-        QString::number(senRepo.findLatestTotalMileageByRideId(ride.id))
-    );
+    ui->tripMileageValueLabel->setText(QString::number(senRepo.findLatestTripMileageByRideId(ride.id)));
+    ui->totalMileageValueLabel->setText(QString::number(senRepo.findLatestTotalMileageByRideId(ride.id)));
     
     //速度groupbox
     ui->avgSpeedValueLabel->setText(QString::number(ride.avgSpeed));
@@ -263,10 +272,7 @@ void MainWindow::showRideDashboard(const Ride &ride)
 
     //事件groupbox
     ui->eventCountValueLabel->setText(QString::number(ride.eventCount));
-
-
-    //设置Events页面
-    //showRideEvents(ride.id);
+    
 }
 
 void MainWindow::showRideEvents(int rideId)
@@ -348,29 +354,6 @@ void MainWindow::showRideCharts(int rideId)
         if(samples[i].speed>maxSpeed) maxSpeed=samples[i].speed;
     }
 
-    // //添加悬停显示信息
-    // connect(heartSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
-    //     if(!state){
-    //         QToolTip::hideText();
-    //         return;
-    //     }
-    //     QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
-
-    //     QToolTip::showText(QCursor::pos(),QString("时间: %1\n心率: %2 bpm").arg(time).arg(point.y(), 0, 'f', 0));
-    // });
-
-    // connect(speedSeries,&QLineSeries::hovered,this,[](const QPointF &point, bool state){
-    //     if(!state){
-    //         QToolTip::hideText();
-    //         return;
-    //     }
-    //     QString time=QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(point.x())).toString("HH:mm:ss");
-
-    //     QToolTip::showText(QCursor::pos(),QString("时间: %1\n速度: %2 km/h").arg(time).arg(point.y(), 0, 'f', 0));
-    // });
-
-
-
 
     //1.心率表
     auto *heartChart=new QChart();
@@ -427,17 +410,17 @@ void MainWindow::showRideCharts(int rideId)
 void MainWindow::on_syncButton_clicked()
 {
     qDebug()<<"-------------------------------";
+    ui->syncButton->setEnabled(false);
 
-    OnenetRequestConfig config={
-        .productId="pmJ97H965j",
-        .deviceName="dev1",
-        .authorization="version=2018-10-31&res=products%2FpmJ97H965j%2Fdevices%2Fdev1&et=1806050344&method=md5&sign=MBQgX0y0Megx1%2Bt8Zb3FkQ%3D%3D"
-    };
-    SyncRequest request={
-        .config=config,
-        .start_time=ui->startDateTimeEdit->dateTime().toMSecsSinceEpoch(),
-        .end_time=ui->endDateTimeEdit->dateTime().toMSecsSinceEpoch()
-    };
+    OnenetRequestConfig config;
+    config.productId = "pmJ97H965j";
+    config.deviceName = "dev1";
+    config.authorization = "version=2018-10-31&res=products%2FpmJ97H965j%2Fdevices%2Fdev1&et=1806050344&method=md5&sign=MBQgX0y0Megx1%2Bt8Zb3FkQ%3D%3D";
+
+    SyncRequest request;
+    request.config = config;
+    request.start_time = ui->startDateTimeEdit->dateTime().toMSecsSinceEpoch();
+    request.end_time = ui->endDateTimeEdit->dateTime().toMSecsSinceEpoch();
 
     m_syncWorker->start(request);
 }

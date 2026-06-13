@@ -159,6 +159,74 @@ QVector<Ride> RideRepository::findAll()
     return rides;
 }
 
+std::optional<Ride> RideRepository::findByDeviceAndTime(int deviceId, const QString &startTime, const QString &endTime)
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+            select *
+            from rides
+            where device_id=:device_id
+                and start_time=:start_time
+                and end_time=:end_time 
+            limit 1
+        )"
+    );
+    query.bindValue(":device_id",deviceId);
+    query.bindValue(":start_time",startTime);
+    query.bindValue(":end_time",endTime);
+
+    if(!query.exec()){
+        m_lastError=query.lastError().text();
+        return std::nullopt;
+    }
+
+    if(!query.next()){
+        m_lastError=query.lastError().text();
+        return std::nullopt;
+    }
+
+    Ride ride;
+    ride.id = query.value("id").toInt();
+    ride.deviceId = query.value("device_id").toInt();
+    ride.title = query.value("title").toString();
+    ride.startTime = query.value("start_time").toString();
+    ride.endTime = query.value("end_time").toString();
+    ride.durationSeconds = query.value("duration_seconds").toInt();
+    ride.tripMileage = query.value("trip_mileage").toDouble();
+    ride.avgHeartRate = query.value("avg_heart_rate").toDouble();
+    ride.maxHeartRate = query.value("max_heart_rate").toInt();
+    ride.avgSpeed = query.value("avg_speed").toDouble();
+    ride.maxSpeed = query.value("max_speed").toDouble();
+    ride.avgSpo2 = query.value("avg_spo2").toDouble();
+    ride.minSpo2 = query.value("min_spo2").toInt();
+    ride.avgTemperature = query.value("avg_temperature").toDouble();
+    ride.avgHumidity = query.value("avg_humidity").toDouble();
+    ride.eventCount = query.value("event_count").toInt();
+    ride.createdAt = query.value("created_at").toString();
+
+    return ride;
+}
+
+bool RideRepository::deleteById(int rideId)
+{
+    m_lastError.clear();
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+            delete from rides
+            where id=:id    
+        )"
+    );
+    query.bindValue(":id",rideId);
+    if(!query.exec()){
+        m_lastError=query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
 QString RideRepository::lastError() const
 {
     return m_lastError;

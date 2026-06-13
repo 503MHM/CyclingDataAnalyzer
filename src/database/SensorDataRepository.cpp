@@ -168,6 +168,54 @@ double SensorDataRepository::findLatestTotalMileageByRideId(int rideId)
     return query.value("total_mileage").toDouble();
 }
 
+double SensorDataRepository::findLatestTripMileageByRideId(int rideId)
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+            select *
+            from sensor_data
+            where ride_id=:ride_id
+                and trip_mileage is not null
+            order by timestamp_ms desc
+            limit 1
+        )"
+    );
+    query.bindValue(":ride_id",rideId);
+
+    if(!query.exec()){
+        m_lastError=query.lastError().text();
+        return 0.0;
+    }
+
+    if (!query.next()) {
+        return 0.0;
+    }
+
+    return query.value("trip_mileage").toDouble();
+}
+
+bool SensorDataRepository::deleteByRideId(int rideId)
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+            delete from sensor_data
+            where ride_id=:ride_id
+        )"
+    );
+    query.bindValue(":ride_id",rideId);
+
+    if(!query.exec()){
+        m_lastError=query.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
 QString SensorDataRepository::lastError() const
 {
     return m_lastError;
