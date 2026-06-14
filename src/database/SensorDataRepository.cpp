@@ -216,6 +216,65 @@ bool SensorDataRepository::deleteByRideId(int rideId)
     return true;
 }
 
+int SensorDataRepository::countByRideId(int rideId)
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+        select count(*)
+        from sensor_data
+        where ride_id = :ride_id
+    )");
+
+    query.bindValue(":ride_id", rideId);
+
+    if (!query.exec()) {
+        m_lastError = query.lastError().text();
+        return 0;
+    }
+
+    if (!query.next()) {
+        return 0;
+    }
+
+    return query.value(0).toInt();
+}
+
+QSqlQuery SensorDataRepository::queryRawDataPageByRideId(int rideId,int limit,int offset)
+{
+    m_lastError.clear();
+
+    QSqlQuery query(m_database);
+    query.prepare(R"(
+        select
+            time_text AS 时间,
+            heart_rate AS 心率,
+            spo2 AS 血氧,
+            speed AS 速度,
+            temperature AS 温度,
+            humidity AS 湿度,
+            latitude AS 纬度,
+            longitude AS 经度,
+            trip_mileage AS 单次里程,
+            total_mileage AS 总里程
+        from sensor_data
+        where ride_id = :ride_id
+        order by timestamp_ms asc
+        limit :limit offset :offset
+    )");
+
+    query.bindValue(":ride_id", rideId);
+    query.bindValue(":limit", limit);
+    query.bindValue(":offset", offset);
+
+    if (!query.exec()) {
+        m_lastError = query.lastError().text();
+    }
+
+    return query;
+}
+
 QString SensorDataRepository::lastError() const
 {
     return m_lastError;

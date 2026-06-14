@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/html">
+        <file alias="track_map.html">src/webhtml/track_map.html</file>
+    </qresource>
+    <qresource prefix="/icon">
+        <file>icons/distance.png</file>
+        <file>icons/time.png</file>
+        <file>icons/speed.png</file>
+        <file>icons/environment.png</file>
+        <file>icons/heartRate.png</file>
+        <file>icons/spo2.png</file>
+    </qresource>
+</RCC>

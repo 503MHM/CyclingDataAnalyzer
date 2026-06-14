@@ -26,5 +26,9 @@ public:
 
     bool deleteByRideId(int rideId);
 
+    int countByRideId(int rideId);
+
+    QSqlQuery queryRawDataPageByRideId(int rideId,int limit,int offset);
+
     QString lastError()const;
 };

@@ -225,88 +225,6 @@ void SyncWorker::tryFinish()
     
     }
 
-    // bool hasPropertyData = false;
-    // for (auto it = m_propertyPoints.begin(); it != m_propertyPoints.end(); ++it) {
-    //     if (!it.value().isEmpty()) {
-    //         hasPropertyData = true;
-    //         break;
-    //     }
-    // }
-
-    // bool hasEventData = !m_eventItems.isEmpty();
-
-    // if (!hasPropertyData && !hasEventData) {
-    //     emit failed("[SyncWorker] 查询时间范围内没有 OneNET 数据，未创建骑行记录");
-    //     return;
-    // }
-
-    // //1.构建骑行记录
-    // Ride ride=RideBuilder::buildRideFromEventsOrRange(m_deviceId,m_eventItems,m_request.start_time,m_request.end_time);
-
-    // RideRepository rideRepo(m_database);
-
-    // std::optional<Ride> existingRide=rideRepo.findByDeviceAndTime(m_deviceId,ride.startTime,ride.endTime);
-
-    // //如果存在旧数据先把旧数据删了
-    // if(existingRide){
-    //     const int oldRideId = existingRide->id;
-
-    //     SensorDataRepository senRepo(m_database);
-    //     if (!senRepo.deleteByRideId(oldRideId)) {
-    //         emit failed("[SyncWorker] 删除旧传感器数据失败: " + senRepo.lastError());
-    //         return;
-    //     }
-
-    //     EventRepository eventRepo(m_database);
-    //     if (!eventRepo.deleteByRideId(oldRideId)) {
-    //         emit failed("[SyncWorker] 删除旧事件数据失败: " + eventRepo.lastError());
-    //         return;
-    //     }
-
-    //     if (!rideRepo.deleteById(oldRideId)) {
-    //         emit failed("[SyncWorker] 删除旧骑行记录失败: " + rideRepo.lastError());
-    //         return;
-    //     }
-    // }
-    
-
-    // int rideId=rideRepo.insertRide(ride);
-    // if(rideId==0){
-    //     emit failed("[SyncWorker]骑行记录入库失败，"+rideRepo.lastError());
-    //     return;
-    // }
-    
-    // //2.属性数据入库
-    // SyncService service(m_database);
-    // bool ok=service.syncPropertiesToRide(m_deviceId,rideId,m_propertyPoints);
-    // if(!ok){
-    //     emit failed("[SyncWorker]属性数据入库失败"+service.lastError());
-    //     return;
-    // }
-
-
-    // //3.事件数据入库
-    // ok=service.syncEventsToRide(m_deviceId,rideId,m_eventItems);
-    // if(!ok){
-    //     emit failed("[SyncWorker]事件数据入库失败"+service.lastError());
-    //     return;
-    // }
-
-    // //4.统计计算与回写
-    // SensorDataRepository senRepo(m_database);
-    // EventRepository eventRepo(m_database);
-    
-    // QVector<SensorSample> samples=senRepo.findByRideId(rideId);
-    // QVector<RideEvent> events=eventRepo.findByRideId(rideId);
-    
-    // AnalysisService::RideStats stats=AnalysisService::calculateRideStats(samples,events);
-    
-    // //更新
-    // ok=rideRepo.updateStats(rideId,stats);
-    // if(!ok){
-    //     emit failed("[SyncWorker]统计计算与回写失败，"+rideRepo.lastError());
-    //     return;
-    // }
 
     if (lastRideId == 0) {
         emit failed("[SyncWorker] 没有可入库的完整骑行数据");
@@ -319,7 +237,11 @@ void SyncWorker::tryFinish()
 
 qint64 SyncWorker::isoDateStringToMs(const QString &timeText)
 {
-    return QDateTime::fromString(timeText,Qt::ISODate).toMSecsSinceEpoch();
+    QDateTime dt = QDateTime::fromString(timeText, Qt::ISODateWithMs);
+    if (!dt.isValid()) {
+        dt = QDateTime::fromString(timeText, Qt::ISODate);
+    }
+    return dt.toMSecsSinceEpoch();
 }
 
 QHash<QString, QVector<OnenetPropertyPoint>> SyncWorker::filterPropertyPointsByTime(const QHash<QString, QVector<OnenetPropertyPoint>> &allPoints, qint64 startMs, qint64 endMs)

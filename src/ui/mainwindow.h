@@ -7,11 +7,15 @@
 #include "service/SyncWorker.h"
 #include "domain/Ride.h"
 #include "ui/InteractiveChartView.h"
+#include "ui/TrackView.h"
+
 
 #include <vector>
 #include <QSqlQueryModel>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
+
+
 
 
 QT_BEGIN_NAMESPACE
@@ -43,6 +47,16 @@ public:
 
     void showRideCharts(int rideId);
 
+    void showRideTrack(int rideId);
+
+    void loadCurrentTab();
+
+    int rawDataTotalCount(int rideId);
+
+    void updateRawDataPageControls();
+
+    void setIcon();
+
     void test();
 
 private slots:
@@ -59,5 +73,12 @@ private:
     
     InteractiveChartView *m_heartChartView=nullptr;
     InteractiveChartView *m_speedChartView=nullptr;
+
+    TrackView *m_trackView=nullptr;
+
+    int m_currentRideId=0;
+    int m_rawDataPageIndex=0;
+    int m_rawDataPageSize=20;
+    int m_rawDataTotalRows=0;
 };
 #endif // MAINWINDOW_H

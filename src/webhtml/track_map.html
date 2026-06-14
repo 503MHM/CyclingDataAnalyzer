@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fa;
+        }
+    </style>
+    <!-- 替换为你自己申请的高德 Key -->
+    <script src="https://webapi.amap.com/maps?v=2.0&key=b6ef9bf9ea6c9aa4c54e8093c704dc1e"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script>
+        var map = null;
+        var polyline = null;
+        var startMarker = null;
+        var endMarker = null;
+        var lastTrackKey = "";
+
+        // 尝试初始化地图，失败不阻塞 setTrack 定义
+        try {
+            map = new AMap.Map('map', {
+                zoom: 12,
+                center: [116.397428, 39.90923]
+            });
+        } catch (e) {
+            console.log("高德地图初始化失败: " + e.message);
+        }
+
+        // Qt 会调用这个函数，points 是一个对象数组
+        // 格式：[{lng: ..., lat: ..., time: "...", speed: ...}, ...]
+        window.setTrack = function(points) {
+            if (!map) {
+                console.log("地图未就绪，AMap 可能加载失败");
+                return;
+            }
+
+            if (!points || points.length === 0) {
+                clearTrack();
+                return;
+            }
+
+            // 转为高德 Polyline 需要的坐标格式 [[lng, lat], ...]
+            var path = points.map(function(p) {
+                return [p.lng, p.lat];
+            });
+
+            // 标记起点和终点
+            var start = points[0];
+            var end = points[points.length - 1];
+            var trackKey = points.length + ":" + start.lng + "," + start.lat + ":" + end.lng + "," + end.lat;
+
+            if (polyline) {
+                polyline.setPath(path);
+            } else {
+                polyline = new AMap.Polyline({
+                    path: path,
+                    strokeColor: '#1677ff',
+                    strokeWeight: 5,
+                    lineJoin: 'round',
+                    lineCap: 'round',
+                    showDir: true
+                });
+                map.add(polyline);
+            }
+
+            if (startMarker) {
+                startMarker.setPosition([start.lng, start.lat]);
+            } else {
+                startMarker = new AMap.Marker({
+                    position: [start.lng, start.lat],
+                    content: '<div style="background:#09f;color:#fff;padding:2px 6px;border-radius:3px;font-size:12px;">起点</div>',
+                    offset: new AMap.Pixel(-15, -30)
+                });
+                map.add(startMarker);
+            }
+
+            if (endMarker) {
+                endMarker.setPosition([end.lng, end.lat]);
+            } else {
+                endMarker = new AMap.Marker({
+                    position: [end.lng, end.lat],
+                    content: '<div style="background:#f60;color:#fff;padding:2px 6px;border-radius:3px;font-size:12px;">终点</div>',
+                    offset: new AMap.Pixel(-15, -30)
+                });
+                map.add(endMarker);
+            }
+
+            // 自动调整视野，让整条路线可见
+            if (trackKey !== lastTrackKey) {
+                map.setFitView([polyline, startMarker, endMarker], false, [60, 60, 60, 60]);
+                lastTrackKey = trackKey;
+            }
+        };
+
+        // Qt 会调用这个函数清除地图上的轨迹
+        window.clearTrack = function() {
+            if (polyline) {
+                if (map) map.remove(polyline);
+                polyline = null;
+            }
+            if (startMarker) {
+                if (map) map.remove(startMarker);
+                startMarker = null;
+            }
+            if (endMarker) {
+                if (map) map.remove(endMarker);
+                endMarker = null;
+            }
+            lastTrackKey = "";
+        };
+    </script>
+</body>
+</html>

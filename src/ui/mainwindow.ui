@@ -293,15 +293,15 @@
                 </property>
                </widget>
               </item>
-              <item alignment="Qt::AlignVCenter">
-               <widget class="QWidget" name="timeFormWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QFormLayout" name="timeFormLayout">
+               <item alignment="Qt::AlignmentFlag::AlignVCenter">
+                <widget class="QWidget" name="timeFormWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="timeFormLayout">
                 <property name="topMargin">
                  <number>6</number>
                 </property>
@@ -350,9 +350,9 @@
                   </property>
                  </widget>
                 </item>
-                </layout>
-               </widget>
-              </item>
+                 </layout>
+                </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -393,15 +393,15 @@
                 </property>
                </widget>
               </item>
-              <item alignment="Qt::AlignVCenter">
-               <widget class="QWidget" name="distanceFormWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QFormLayout" name="distanceFormLayout">
+               <item alignment="Qt::AlignmentFlag::AlignVCenter">
+                <widget class="QWidget" name="distanceFormWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="distanceFormLayout">
                 <property name="topMargin">
                  <number>14</number>
                 </property>
@@ -436,9 +436,9 @@
                   </property>
                  </widget>
                 </item>
-                </layout>
-               </widget>
-              </item>
+                 </layout>
+                </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -479,15 +479,15 @@
                 </property>
                </widget>
               </item>
-              <item alignment="Qt::AlignVCenter">
-               <widget class="QWidget" name="heartRateFormWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QFormLayout" name="heartRateFormLayout">
+               <item alignment="Qt::AlignmentFlag::AlignVCenter">
+                <widget class="QWidget" name="heartRateFormWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="heartRateFormLayout">
                 <property name="topMargin">
                  <number>14</number>
                 </property>
@@ -522,9 +522,9 @@
                   </property>
                  </widget>
                 </item>
-                </layout>
-               </widget>
-              </item>
+                 </layout>
+                </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -565,15 +565,15 @@
                 </property>
                </widget>
               </item>
-              <item alignment="Qt::AlignVCenter">
-               <widget class="QWidget" name="speedFormWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QFormLayout" name="speedFormLayout">
+               <item alignment="Qt::AlignmentFlag::AlignVCenter">
+                <widget class="QWidget" name="speedFormWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="speedFormLayout">
                 <property name="topMargin">
                  <number>14</number>
                 </property>
@@ -608,9 +608,9 @@
                   </property>
                  </widget>
                 </item>
-                </layout>
-               </widget>
-              </item>
+                 </layout>
+                </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -651,15 +651,15 @@
                 </property>
                </widget>
               </item>
-              <item alignment="Qt::AlignVCenter">
-               <widget class="QWidget" name="spo2FormWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QFormLayout" name="spo2FormLayout">
+               <item alignment="Qt::AlignmentFlag::AlignVCenter">
+                <widget class="QWidget" name="spo2FormWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="spo2FormLayout">
                 <property name="topMargin">
                  <number>14</number>
                 </property>
@@ -694,9 +694,9 @@
                   </property>
                  </widget>
                 </item>
-                </layout>
-               </widget>
-              </item>
+                 </layout>
+                </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -737,15 +737,15 @@
                 </property>
                </widget>
               </item>
-              <item alignment="Qt::AlignVCenter">
-               <widget class="QWidget" name="environmentFormWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QFormLayout" name="environmentFormLayout">
+               <item alignment="Qt::AlignmentFlag::AlignVCenter">
+                <widget class="QWidget" name="environmentFormWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="environmentFormLayout">
                 <property name="topMargin">
                  <number>14</number>
                 </property>
@@ -780,9 +780,9 @@
                   </property>
                  </widget>
                 </item>
-                </layout>
-               </widget>
-              </item>
+                 </layout>
+                </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -801,15 +801,15 @@
               <property name="spacing">
                <number>14</number>
               </property>
-              <item alignment="Qt::AlignVCenter">
-               <widget class="QWidget" name="eventFormWidget">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QFormLayout" name="eventFormLayout">
+               <item alignment="Qt::AlignmentFlag::AlignVCenter">
+                <widget class="QWidget" name="eventFormWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <layout class="QFormLayout" name="eventFormLayout">
                 <property name="topMargin">
                  <number>18</number>
                 </property>
@@ -830,9 +830,9 @@
                   </property>
                  </widget>
                 </item>
-                </layout>
-               </widget>
-              </item>
+                 </layout>
+                </widget>
+               </item>
              </layout>
             </widget>
            </item>
@@ -854,18 +854,7 @@
         <attribute name="title">
          <string>Track</string>
         </attribute>
-        <layout class="QVBoxLayout" name="trackLayout">
-         <item>
-          <widget class="QLabel" name="trackPlaceholderLabel">
-           <property name="text">
-            <string>GPS 轨迹区域</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <layout class="QVBoxLayout" name="trackLayout"/>
        </widget>
        <widget class="QWidget" name="eventsTab">
         <attribute name="title">
@@ -903,16 +892,67 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="rawDataTab">
-        <attribute name="title">
-         <string>Raw Data</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="rawDataLayout">
-         <item>
-          <widget class="QTableView" name="rawDataTableView"/>
-         </item>
-        </layout>
-       </widget>
+        <widget class="QWidget" name="rawDataTab">
+         <attribute name="title">
+          <string>Raw Data</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="rawDataLayout">
+          <item>
+           <widget class="QTableView" name="rawDataTableView"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="rawDataPageLayout">
+            <item>
+             <spacer name="rawDataPageLeftSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="rawPrevButton">
+              <property name="text">
+               <string>上一页</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="rawPageLabel">
+              <property name="text">
+               <string>第 0 / 0 页</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="rawNextButton">
+              <property name="text">
+               <string>下一页</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="rawDataPageRightSpacer">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
       </widget>
      </widget>
     </item>

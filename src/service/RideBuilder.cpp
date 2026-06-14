@@ -62,8 +62,8 @@ QVector<Ride> RideBuilder::buildRidesFromEvents(int deviceId, const QVector<Onen
 
             Ride ride;
             ride.deviceId=deviceId;
-            ride.startTime=QDateTime::fromMSecsSinceEpoch(currentStartMs).toString(Qt::ISODate);
-            ride.endTime = QDateTime::fromMSecsSinceEpoch(event.timestampMs).toString(Qt::ISODate);
+            ride.startTime=QDateTime::fromMSecsSinceEpoch(currentStartMs).toString(Qt::ISODateWithMs);
+            ride.endTime = QDateTime::fromMSecsSinceEpoch(event.timestampMs).toString(Qt::ISODateWithMs);
             ride.durationSeconds = static_cast<int>((event.timestampMs - currentStartMs) / 1000);
             ride.createdAt = QDateTime::currentDateTime().toString(Qt::ISODate);
             ride.title = QDateTime::fromMSecsSinceEpoch(currentStartMs).toString("yyyy-MM-dd hh:mm 骑行");

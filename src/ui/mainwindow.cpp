@@ -48,6 +48,10 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setIcon();
+
+    m_trackView=new TrackView(this);
+    ui->trackLayout->addWidget(m_trackView);
 
     //设置同步时间范围
     setDateTimeEditRange();
@@ -63,17 +67,21 @@ MainWindow::MainWindow(QWidget *parent)
     //加载左侧列表
     loadRideList();
 
-    //连接信号加载dashboard
+    //连接信号
     connect(ui->rideListWidget,&QListWidget::currentRowChanged,this,[=](int row){
         if (row < 0 || row >= m_rides.size()) return;
-
+        m_currentRideId=m_rides[row].id;
+        m_rawDataPageIndex=0;
+        m_rawDataTotalRows=0;
+        
+        //加载dashboard
         showRideDashboard(m_rides[row]);
-        //设置Events页面
-        showRideEvents(m_rides[row].id);
-        //设置raw data页面
-        showRideRawData(m_rides[row].id);
-        //设置曲线页面
-        showRideCharts(m_rides[row].id);
+        
+        loadCurrentTab();
+    });
+
+    connect(ui->contentTabWidget,&QTabWidget::currentChanged,this,[=](){
+        loadCurrentTab();
     });
     
     
@@ -119,6 +127,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->rawDataTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->rawDataTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->rawDataTableView->horizontalHeader()->setStretchLastSection(true);
+
+    connect(ui->rawPrevButton, &QPushButton::clicked, this, [=](){
+        if (m_rawDataPageIndex <= 0 || m_currentRideId <= 0) return;
+        m_rawDataPageIndex--;
+        showRideRawData(m_currentRideId);
+    });
+
+    connect(ui->rawNextButton, &QPushButton::clicked, this, [=](){
+        int pageCount = (m_rawDataTotalRows + m_rawDataPageSize - 1) / m_rawDataPageSize;
+        if (pageCount <= 0) {
+            pageCount = 1;
+        }
+        if (m_rawDataPageIndex + 1 >= pageCount || m_currentRideId <= 0) return;
+        m_rawDataPageIndex++;
+        showRideRawData(m_currentRideId);
+    });
     
     //初始化图表
     m_heartChartView=new InteractiveChartView(this);
@@ -140,6 +164,7 @@ void MainWindow::setDateTimeEditRange()
     QDateTime earliest(QDate::currentDate().addDays(-29),QTime(0, 0, 0));
 
     QDateTime latest = now;
+    latest.setTime(QTime(23,59,59));
 
     ui->startDateTimeEdit->setMinimumDateTime(earliest);
     ui->startDateTimeEdit->setMaximumDateTime(latest);
@@ -165,6 +190,7 @@ void MainWindow::setDateTimeEditRange()
         //如果计算出的 maxEnd 超过了当前时间，则把最大值限制为当前时间。
         if (maxEnd > current)
         {
+            current.setTime(QTime(23,59,59));
             maxEnd = current;
         }
 
@@ -182,19 +208,11 @@ void MainWindow::setDateTimeEditRange()
         }
     };
 
-    connect(ui->startDateTimeEdit,
-            &QDateTimeEdit::dateTimeChanged,
-            this,
-            [=](const QDateTime &start)
-            {
-                updateEndTimeRange(start);
-            });
+    connect(ui->startDateTimeEdit,&QDateTimeEdit::dateTimeChanged,this,[=](const QDateTime &start){
+        updateEndTimeRange(start);
+    });
 
     updateEndTimeRange(ui->startDateTimeEdit->dateTime());
-
-
-
-
 
 }
 
@@ -303,32 +321,87 @@ void MainWindow::showRideEvents(int rideId)
 
 void MainWindow::showRideRawData(int rideId)
 {
-    QSqlQuery query(m_database->database());
-    query.prepare(R"(
-        select
-            time_text AS 时间,
-            heart_rate AS 心率,
-            spo2 AS 血氧,
-            speed AS 速度,
-            temperature AS 温度,
-            humidity AS 湿度,
-            latitude AS 纬度,
-            longitude AS 经度,
-            trip_mileage AS 单次里程,
-            total_mileage AS 总里程
-        from sensor_data
-        where ride_id=:ride_id
-        order by timestamp_ms asc
-        )"
-    );
-    query.bindValue(":ride_id",rideId);
+    SensorDataRepository repo(m_database->database());
 
-    if(!query.exec()){
-        ui->statusbar->showMessage("原始数据查询失败: " + query.lastError().text(),5000);
+    m_rawDataTotalRows = repo.countByRideId(rideId);
+    int pageCount = (m_rawDataTotalRows + m_rawDataPageSize - 1) / m_rawDataPageSize;
+
+    if (pageCount <= 0) {
+        pageCount = 1;
+    }
+
+    if (m_rawDataPageIndex >= pageCount) {
+        m_rawDataPageIndex = pageCount - 1;
+    }
+
+    int offset = m_rawDataPageIndex * m_rawDataPageSize;
+
+    QSqlQuery query = repo.queryRawDataPageByRideId(
+        rideId,
+        m_rawDataPageSize,
+        offset
+    );
+
+    if (repo.lastError().isEmpty() == false) {
+        ui->statusbar->showMessage("原始数据查询失败: " + repo.lastError(), 5000);
         return;
     }
 
-    m_rawDataModel->setQuery(query);
+    m_rawDataModel->setQuery(std::move(query));
+    updateRawDataPageControls();
+}
+
+int MainWindow::rawDataTotalCount(int rideId)
+{
+    QSqlQuery query(m_database->database());
+    query.prepare(R"(
+        select count(*)
+        from sensor_data
+        where ride_id=:ride_id
+        )"
+    );
+    query.bindValue(":ride_id", rideId);
+
+    if (!query.exec()) {
+        ui->statusbar->showMessage("原始数据总数查询失败: " + query.lastError().text(), 5000);
+        return 0;
+    }
+
+    if (!query.next()) {
+        return 0;
+    }
+
+    return query.value(0).toInt();
+}
+
+void MainWindow::updateRawDataPageControls()
+{
+    int pageCount = (m_rawDataTotalRows + m_rawDataPageSize - 1) / m_rawDataPageSize;
+    if (pageCount <= 0) {
+        pageCount = 1;
+    }
+
+    ui->rawPageLabel->setText(QString("第 %1 / %2 页").arg(m_rawDataPageIndex + 1).arg(pageCount));
+    ui->rawPrevButton->setEnabled(m_rawDataPageIndex > 0);
+    ui->rawNextButton->setEnabled(m_rawDataPageIndex + 1 < pageCount);
+}
+
+void MainWindow::setIcon()
+{
+    ui->distanceIconLabel->setScaledContents(true);
+    ui->environmentIconLabel->setScaledContents(true);
+    ui->speedIconLabel->setScaledContents(true);
+    ui->spo2IconLabel->setScaledContents(true);
+    ui->timeIconLabel->setScaledContents(true);
+    ui->heartRateIconLabel->setScaledContents(true);
+
+    ui->distanceIconLabel->setPixmap(QPixmap(":/icon/icons/distance.png"));
+    ui->environmentIconLabel->setPixmap(QPixmap(":/icon/icons/environment.png"));
+    ui->speedIconLabel->setPixmap(QPixmap(":/icon/icons/speed.png"));
+    ui->spo2IconLabel->setPixmap(QPixmap(":/icon/icons/spo2.png"));
+    ui->timeIconLabel->setPixmap(QPixmap(":/icon/icons/time.png"));
+    ui->heartRateIconLabel->setPixmap(QPixmap(":/icon/icons/heartRate.png"));
+
 }
 
 void MainWindow::showRideCharts(int rideId)
@@ -405,6 +478,38 @@ void MainWindow::showRideCharts(int rideId)
     m_heartChartView->setCrosshairSeries(heartSeries,"心率","bpm",0);
     m_speedChartView->setChart(speedChart);
     m_speedChartView->setCrosshairSeries(speedSeries,"速度","km/h",2);
+}
+
+void MainWindow::showRideTrack(int rideId)
+{
+    SensorDataRepository repo(m_database->database());
+    QVector<SensorSample> samples = repo.findByRideId(rideId);
+    m_trackView->setTrackSample(samples);
+}
+
+void MainWindow::loadCurrentTab()
+{
+    if(m_currentRideId<=0) return;
+
+    QWidget *currTab=ui->contentTabWidget->currentWidget();
+    if(currTab==ui->dashboardTab){
+        int row = ui->rideListWidget->currentRow();
+        if (row >= 0 && row < m_rides.size()) {
+            showRideDashboard(m_rides[row]);
+        }
+    }
+    else if(currTab==ui->eventsTab){
+        showRideEvents(m_currentRideId);
+    }
+    else if(currTab==ui->chartsTab){
+        showRideCharts(m_currentRideId);
+    }
+    else if(currTab==ui->rawDataTab){
+        showRideRawData(m_currentRideId);
+    }
+    else if(currTab==ui->trackTab){
+        showRideTrack(m_currentRideId);
+    }
 }
 
 void MainWindow::on_syncButton_clicked()
