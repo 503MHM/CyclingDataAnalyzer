@@ -14,7 +14,7 @@ SettingDialog::SettingDialog(QWidget *parent)
     :QDialog(parent)
 {
     setWindowTitle("设置");
-    setWindowIcon(QIcon(":./icon/icons/setting.png"));
+    setWindowIcon(QIcon(":/icon/icons/setting.png"));
 
     m_productIdEdit=new QLineEdit(this);
     m_deviceNameEdit=new QLineEdit(this);

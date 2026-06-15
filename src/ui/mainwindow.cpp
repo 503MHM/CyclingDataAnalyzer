@@ -42,6 +42,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QSettings>
+#include <QCalendarWidget>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -174,6 +175,12 @@ void MainWindow::setDateTimeEditRange()
     ui->endDateTimeEdit->setMinimumDateTime(earliest);
     ui->endDateTimeEdit->setMaximumDateTime(latest);
 
+    ui->startDateTimeEdit->calendarWidget()->setMinimumDate(earliest.date());
+    ui->startDateTimeEdit->calendarWidget()->setMaximumDate(latest.date());
+
+    ui->endDateTimeEdit->calendarWidget()->setMinimumDate(earliest.date());
+    ui->endDateTimeEdit->calendarWidget()->setMaximumDate(latest.date());
+
     // 默认同步今天
     ui->startDateTimeEdit->setDateTime(QDateTime(QDate::currentDate(), QTime(0, 0, 0)));
 
@@ -240,7 +247,7 @@ bool MainWindow::initDatabase()
         dbStatus_lable->setText(m_database->lastError());
         return false;
     }
-    dbStatus_lable->setText("已打开数据库");
+    dbStatus_lable->setText("已连接数据库");
 
     return true;
 }
@@ -265,30 +272,34 @@ void MainWindow::showRideDashboard(const Ride &ride)
     ui->dashboardTitleLabel->setText(ride.title);
     
     //时间groupbox
-    ui->rideStartValueLabel->setText(ride.startTime);
-    ui->rideEndValueLabel->setText(ride.endTime);
-    ui->rideDurationValueLabel->setText(QString::number(ride.durationSeconds));
-    
+    ui->rideStartValueLabel->setText(ride.startTime.section('.', 0, 0));
+    ui->rideEndValueLabel->setText(ride.endTime.section('.', 0, 0));
+    int secs = ride.durationSeconds;
+    ui->rideDurationValueLabel->setText(
+        QString("%1:%2:%3").arg(secs / 3600, 2, 10, QChar('0'))
+                           .arg((secs % 3600) / 60, 2, 10, QChar('0'))
+                           .arg(secs % 60, 2, 10, QChar('0')));
+
     //心率groupbox
-    ui->avgHeartRateValueLabel->setText(QString::number(ride.avgHeartRate));
+    ui->avgHeartRateValueLabel->setText(QString::number(ride.avgHeartRate,'f',1));
     ui->maxHeartRateValueLabel->setText(QString::number(ride.maxHeartRate));
     
     //血氧groupbox
-    ui->avgSpo2ValueLabel->setText(QString::number(ride.avgSpo2));
+    ui->avgSpo2ValueLabel->setText(QString::number(ride.avgSpo2,'f',1));
     ui->minSpo2ValueLabel->setText(QString::number(ride.minSpo2));
 
     //里程groupbox
     SensorDataRepository senRepo(m_database->database());
-    ui->tripMileageValueLabel->setText(QString::number(senRepo.findLatestTripMileageByRideId(ride.id)));
-    ui->totalMileageValueLabel->setText(QString::number(senRepo.findLatestTotalMileageByRideId(ride.id)));
+    ui->tripMileageValueLabel->setText(QString::number(senRepo.findLatestTripMileageByRideId(ride.id),'f',2));
+    ui->totalMileageValueLabel->setText(QString::number(senRepo.findLatestTotalMileageByRideId(ride.id),'f',2));
     
     //速度groupbox
-    ui->avgSpeedValueLabel->setText(QString::number(ride.avgSpeed));
+    ui->avgSpeedValueLabel->setText(QString::number(ride.avgSpeed,'f',1));
     ui->maxSpeedValueLabel->setText(QString::number(ride.maxSpeed));
 
     //环境groupbox
-    ui->avgTemperatureValueLabel->setText(QString::number(ride.avgTemperature));
-    ui->avgHumidityValueLabel->setText(QString::number(ride.avgHumidity));
+    ui->avgTemperatureValueLabel->setText(QString::number(ride.avgTemperature,'f',1));
+    ui->avgHumidityValueLabel->setText(QString::number(ride.avgHumidity,'f',1));
 
     //事件groupbox
     ui->eventCountValueLabel->setText(QString::number(ride.eventCount));
@@ -535,41 +546,6 @@ void MainWindow::on_syncButton_clicked()
     request.end_time = ui->endDateTimeEdit->dateTime().toMSecsSinceEpoch();
 
     m_syncWorker->start(request);
-}
-
-void MainWindow::test(){
-    AppDatabase *db=new AppDatabase(this);
-    if (!db->open("cycling_data.db")) {
-        qDebug() << "打开数据库失败:" << db->lastError();
-        return;
-    }
-
-    RideRepository rideRepo(db->database());
-
-    QVector<Ride> rides;
-    rides=rideRepo.findAll();
-    for(const Ride &ride : rides ){
-        qDebug()<<"--------------------------------------------------------";
-
-        qDebug()<<ride.avgHeartRate
-                <<ride.avgHumidity
-                <<ride.avgSpeed
-                <<ride.avgSpo2
-                <<ride.avgTemperature
-                <<ride.createdAt
-                <<ride.deviceId
-                <<ride.durationSeconds
-                <<ride.endTime
-                <<ride.eventCount
-                <<ride.id
-                <<ride.maxHeartRate
-                <<ride.maxSpeed
-                <<ride.minSpo2
-                <<ride.startTime
-                <<ride.title
-                <<ride.tripMileage;
-    }
-
 }
 
 void MainWindow::on_exportButton_clicked()

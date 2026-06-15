@@ -29,7 +29,13 @@
         try {
             map = new AMap.Map('map', {
                 zoom: 12,
-                center: [116.397428, 39.90923]
+                center: [116.397428, 39.90923],
+                viewMode: '2D',
+                pitch: 0,
+                rotation: 0,
+                animateEnable: false,
+                jogEnable: false,
+                resizeEnable: true
             });
         } catch (e) {
             console.log("高德地图初始化失败: " + e.message);
@@ -67,7 +73,7 @@
                     strokeWeight: 5,
                     lineJoin: 'round',
                     lineCap: 'round',
-                    showDir: true
+                    showDir: false
                 });
                 map.add(polyline);
             }

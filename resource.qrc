@@ -12,4 +12,7 @@
         <file>icons/setting.png</file>
         <file>icons/riding-line.png</file>
     </qresource>
+    <qresource prefix="/style">
+        <file alias="style.qss">src/resources/style.qss</file>
+    </qresource>
 </RCC>

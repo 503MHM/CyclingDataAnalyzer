@@ -105,7 +105,10 @@ void OnenetClient::handlePropertyHistoryReply(QNetworkReply *reply, const QStrin
 
     //1.解析json
     QByteArray array=reply->readAll();
-    if(array.isEmpty()) return;
+    // if(array.isEmpty()) {
+    //     emit requestFailed("queryPropertyHistory",httpStatus,0,)
+    //     return;
+    // }
     QJsonObject obj=arrayToJsonObject(array);
 
     //2.解析json对象获取时间戳和值
@@ -128,7 +131,8 @@ void OnenetClient::handlePropertyHistoryReply(QNetworkReply *reply, const QStrin
     //遍历list取出数据
     for(const QJsonValue &itemVal : listArray){
         if(!itemVal.isObject()){
-            return;
+            //return;
+            continue;
         }
         QJsonObject itemObj=itemVal.toObject();
         
@@ -161,7 +165,7 @@ void OnenetClient::handleEventLogReply(QNetworkReply *reply, int offset, int lim
 
 
     QByteArray array=reply->readAll();
-    if(array.isEmpty()) return;
+    //if(array.isEmpty()) return;
 
     QJsonObject rootObj=arrayToJsonObject(array);
 
@@ -185,7 +189,10 @@ void OnenetClient::handleEventLogReply(QNetworkReply *reply, int offset, int lim
     //遍历list
     for(auto itemVal : list){
         
-        if(!itemVal.isObject()) return;
+        if(!itemVal.isObject()) {
+            //return;
+            continue;
+        }
         QJsonObject itemObj=itemVal.toObject();
     
         OnenetEventItem item;

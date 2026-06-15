@@ -57,8 +57,6 @@ public:
 
     void setIcon();
 
-    void test();
-
 private slots:
     void on_syncButton_clicked();
 
