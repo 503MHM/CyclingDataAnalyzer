@@ -1,6 +1,14 @@
 # This file is used to ignore files which are generated
 # ----------------------------------------------------------------------------
 
+# Local editor and IDE settings
+.vscode/
+.vs/
+.idea/
+
+# Local notes and plans
+development_plan.md
+
 *~
 *.autosave
 *.a
@@ -36,6 +44,17 @@ Thumbs.db
 /.qmake.stash
 **/.qmlls.ini
 
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+*.ninja
+.ninja_*
+_deps/
+Testing/
+
 # qtcreator generated files
 *.pro.user*
 *.qbs.user*
@@ -68,6 +87,14 @@ CMakeLists.txt.user*
 
 # Python byte code
 *.pyc
+
+# Runtime data and local exports
+config/
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.log
 
 # Binaries
 # --------
