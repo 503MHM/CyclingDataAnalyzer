@@ -1,0 +1,20 @@
+{
+    "cmake.generator": "Ninja",
+    "cmake.buildDirectory": "${workspaceFolder}/build-vscode-msvc",
+    "cmake.useVsDeveloperEnvironment": "always",
+    "cmake.configureSettings": {
+        "CMAKE_PREFIX_PATH": "E:/Qt/6.8.3/msvc2022_64",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build-vscode-msvc/compile_commands.json",
+    "cmake.debugConfig": {
+        "environment": [
+            {
+                "name": "PATH",
+                "value": "E:\\Qt\\6.8.3\\msvc2022_64\\bin;${env:PATH}"
+            }
+        ],
+        "cwd": "${workspaceFolder}/build-vscode-msvc"
+    }
+}

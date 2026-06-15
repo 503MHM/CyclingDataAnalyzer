@@ -12,28 +12,38 @@ qt_add_resources(RESOURCE_FILE
 qt_add_executable(CyclingDataAnalyzer
     #WIN32 MACOSX_BUNDLE
     src/main.cpp
+    
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h
     src/ui/mainwindow.ui
-    
+    src/ui/InteractiveChartView.cpp
+    src/ui/InteractiveChartView.h
+    src/ui/TrackView.cpp
+    src/ui/TrackView.h
+    src/ui/Wgs84ToGcj02.h
+    src/ui/SettingDialog.h
+    src/ui/SettingDialog.cpp
+
     src/network/OnenetClient.h
     src/network/OnenetClient.cpp
     src/network/OnenetTypes.h
+    
     src/database/AppDatabase.h
     src/database/AppDatabase.cpp
-    src/domain/Device.h
     src/database/DeviceRepository.h
     src/database/DeviceRepository.cpp
-    src/domain/Ride.h
     src/database/RideRepository.h
     src/database/RideRepository.cpp
-
-    src/domain/SensorSample.h
     src/database/SensorDataRepository.h
     src/database/SensorDataRepository.cpp
-    src/domain/RideEvent.h
     src/database/EventRepository.cpp
     src/database/EventRepository.h
+    
+    src/domain/Ride.h
+    src/domain/Device.h
+    src/domain/SensorSample.h
+    src/domain/RideEvent.h
+    
     src/service/EventMapper.cpp
     src/service/EventMapper.h
     src/service/SensorSampleBuilder.h
@@ -46,12 +56,11 @@ qt_add_executable(CyclingDataAnalyzer
     src/service/RideBuilder.cpp
     src/service/SyncWorker.cpp
     src/service/SyncWorker.h
-    src/ui/InteractiveChartView.cpp
-    src/ui/InteractiveChartView.h
-    src/ui/TrackView.cpp
-    src/ui/TrackView.h
-    src/ui/Wgs84ToGcj02.h
+    src/service/CsvExporter.h
+    src/service/CsvExporter.cpp
+    
     ${RESOURCE_FILE}
+
 )
 
 target_link_libraries(CyclingDataAnalyzer

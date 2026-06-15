@@ -151,7 +151,7 @@ void InteractiveChartView::paintEvent(QPaintEvent *ev)
     painter.drawLine(QPoint(m_crosshairX,plotRect.top()),QPoint(m_crosshairX,plotRect.bottom()));
 
     //画圆点标记
-    painter.setPen(QPen(QColor("#1a73e8"), 2));
+    painter.setPen(QPen(QColor("#999999"), 2));
     painter.setBrush(Qt::white);
     painter.drawEllipse(m_markerPos, 4, 4);
 }

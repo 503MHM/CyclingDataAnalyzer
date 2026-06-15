@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ui/SettingDialog.h"
 
 #include "database/AppDatabase.h"
 #include "database/SensorDataRepository.h"
@@ -18,12 +19,11 @@
 #include "service/SyncService.h"
 #include "service/RideBuilder.h"
 #include "service/SyncWorker.h"
+#include "service/CsvExporter.h"
 
 
 #include "network/OnenetClient.h"
 #include "network/OnenetTypes.h"
-
-
 
 #include <qdatetime.h>
 #include <qdebug.h>
@@ -31,7 +31,6 @@
 #include <QVector>
 #include <QHash>
 #include <functional>
-#include <memory>
 #include <QLabel>
 #include <QTableWidget>
 #include <QTableWidgetItem>
@@ -41,6 +40,8 @@
 #include <QToolTip>
 #include <QCursor>
 #include <QDir>
+#include <QFileDialog>
+#include <QSettings>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -49,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     setIcon();
+    QSettings settings=SettingDialog::appSettings();
+    m_rawDataPageSize=settings.value("rawData/pageSize",20).toInt();
 
     m_trackView=new TrackView(this);
     ui->trackLayout->addWidget(m_trackView);
@@ -60,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent)
     if(!initDatabase()){
         return;
     }
-
     //
     m_syncWorker = new SyncWorker(m_database->database(), this);
 
@@ -388,6 +390,8 @@ void MainWindow::updateRawDataPageControls()
 
 void MainWindow::setIcon()
 {
+    this->setWindowIcon(QIcon(":/icon/icons/riding-line.png"));
+
     ui->distanceIconLabel->setScaledContents(true);
     ui->environmentIconLabel->setScaledContents(true);
     ui->speedIconLabel->setScaledContents(true);
@@ -411,6 +415,7 @@ void MainWindow::showRideCharts(int rideId)
 
     QLineSeries *heartSeries=new QLineSeries();
     heartSeries->setName("心率");
+    heartSeries->setColor(Qt::red);
 
     QLineSeries *speedSeries=new QLineSeries();
     speedSeries->setName("速度");
@@ -517,10 +522,12 @@ void MainWindow::on_syncButton_clicked()
     qDebug()<<"-------------------------------";
     ui->syncButton->setEnabled(false);
 
+    QSettings settings=SettingDialog::appSettings();
+
     OnenetRequestConfig config;
-    config.productId = "pmJ97H965j";
-    config.deviceName = "dev1";
-    config.authorization = "version=2018-10-31&res=products%2FpmJ97H965j%2Fdevices%2Fdev1&et=1806050344&method=md5&sign=MBQgX0y0Megx1%2Bt8Zb3FkQ%3D%3D";
+    config.productId=settings.value("onenet/productId","pmJ97H965j").toString();
+    config.deviceName=settings.value("onenet/deviceName","dev1").toString();
+    config.authorization=settings.value("onenet/authorization","version=2018-10-31&res=products%2FpmJ97H965j%2Fdevices%2Fdev1&et=1806050344&method=md5&sign=MBQgX0y0Megx1%2Bt8Zb3FkQ%3D%3D").toString();
 
     SyncRequest request;
     request.config = config;
@@ -564,3 +571,58 @@ void MainWindow::test(){
     }
 
 }
+
+void MainWindow::on_exportButton_clicked()
+{
+    if(m_currentRideId<=0){
+        ui->statusbar->showMessage("请先选择一条骑行记录",5000);
+        return;
+    }
+
+    SensorDataRepository senRepo(m_database->database());
+    QVector<SensorSample> samples=senRepo.findByRideId(m_currentRideId);
+
+    if(samples.isEmpty()){
+        ui->statusbar->showMessage("当前骑行没有可导出的原始数据",5000);
+        return;
+    }
+
+    QString filePath=QFileDialog::getSaveFileName(this,"选择导出csv的位置",QDir::homePath(),"CSV文件(*.csv)");
+
+    if(filePath.isEmpty()){
+        return;
+    }
+
+    if(!filePath.endsWith(".csv",Qt::CaseInsensitive)){
+        filePath+=".csv";
+    }
+
+    QString errMsg;
+    if(!CsvExporter::exportSamples(filePath,samples,&errMsg)){
+        ui->statusbar->showMessage(errMsg,5000);
+        return;
+    }
+
+    ui->statusbar->showMessage("CSV 导出成功: " + filePath, 5000);
+}
+
+
+void MainWindow::on_settingsButton_clicked()
+{
+    SettingDialog dialog(this);
+
+    if(dialog.exec() != QDialog::Accepted){
+        return;
+    }
+
+    QSettings settings=SettingDialog::appSettings();
+    m_rawDataPageSize=settings.value("rawData/pageSize",20).toInt();
+
+    m_rawDataPageIndex=0;
+    m_rawDataTotalRows=0;
+
+    loadCurrentTab();
+
+    ui->statusbar->showMessage("设置已保存",3000);
+}
+

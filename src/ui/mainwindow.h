@@ -62,6 +62,10 @@ public:
 private slots:
     void on_syncButton_clicked();
 
+    void on_exportButton_clicked();
+
+    void on_settingsButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 

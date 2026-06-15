@@ -9,5 +9,7 @@
         <file>icons/environment.png</file>
         <file>icons/heartRate.png</file>
         <file>icons/spo2.png</file>
+        <file>icons/setting.png</file>
+        <file>icons/riding-line.png</file>
     </qresource>
 </RCC>
