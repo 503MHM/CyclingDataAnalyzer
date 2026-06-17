@@ -62,7 +62,6 @@ Track 页面使用高德地图 Web API，相关 HTML 文件位于：
 src/webhtml/track_map.html
 ```
 
-发布或部署前，建议将其中的高德 Web API Key 替换为你自己的 Key。
 
 ## 项目结构
 
@@ -79,16 +78,13 @@ icons/         图标资源
 resource.qrc   Qt 资源文件
 ```
 
-## Git 忽略说明
+## 运行截图
+![Dashboard](image/dashboard.png)
 
-仓库只保留源码、资源文件和项目构建配置。以下内容不会上传：
+![chart](image/chart.png)
 
-- VS Code 本地配置
-- Qt Creator 本地配置
-- build 编译目录
-- CMake 生成文件
-- 本地运行配置
-- 本地数据库
-- CSV 导出文件
-- 开发计划文档
-- 可执行文件和动态库
+![track](image/track.png)
+
+![events](image/events.png)
+
+![raw_data](image/raw_data.png)
